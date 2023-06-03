@@ -1,10 +1,13 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     experiments: {
         asyncWebAssembly: true,
+        syncWebAssembly: true
     },
+    entry: './src/index.js',
     module: {
         rules: [
             {
@@ -40,16 +43,16 @@ module.exports = {
                 loader: 'file-loader'
             },
             {
-                test: /\.(wasm)?$/,
-                use: 'wasm-loader',
-                type: 'webassembly/experimental',
-            },
-            {
 
                 test: /\.(ts)?$/,
                 exclude: /node_modules/,
                 use: 'ts-loader'
-            }
+            },
+            {
+                test: /\.(wasm)$/,
+                loader: 'wasm-loader',
+                type: 'javascript/auto',
+            },
         ]
     },
     resolve: {
@@ -70,8 +73,18 @@ module.exports = {
             template: 'src/index.html',
             filename: 'index.html',
         }),
-        new CompressionPlugin({
-            test: /\.js(\?.*)?$/i
+        new CompressionPlugin(
+            {
+                test: /\.js(\?.*)?$/i
+            }
+        ),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: 'wasm',
+                    to: 'wasm'
+                }
+            ]
         })
     ],
 };
